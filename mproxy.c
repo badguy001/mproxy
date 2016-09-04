@@ -15,6 +15,7 @@
 
 #include <string.h>
 
+#define DEBUG
 #define BUF_SIZE 8192
 
 #define READ  0
@@ -254,7 +255,8 @@ int extract_host(const char * header)
 /* 响应隧道连接请求  */
 int send_tunnel_ok(int client_sock)
 {
-    char * resp = "HTTP/1.1 200 Connection Established\r\n\r\n";
+    //char * resp = "HTTP/1.1 200 Connection Established\r\n\r\n";
+    char * resp = "HTTP/1.1 200 OK\r\n\r\n";
     int len = strlen(resp);
     char buffer[len+1];
     strcpy(buffer,resp);
@@ -351,7 +353,9 @@ const char * get_work_mode()
 /* 处理客户端的连接 */
 void handle_client(int client_sock, struct sockaddr_in client_addr)
 {
-    int is_http_tunnel = 0; 
+    int is_http_tunnel = 0;
+    //char * ttt = (char *) malloc(MAX_HEADER_SIZE); 
+	char * sip = inet_ntoa(client_addr.sin_addr);
     if(strlen(remote_host) == 0) /* 未指定远端主机名称从http 请求 HOST 字段中获取 */
     {
         
@@ -390,6 +394,18 @@ void handle_client(int client_sock, struct sockaddr_in client_addr)
             LOG("Host:%s port: %d io_flag:%d\n",remote_host,remote_port,io_flag);
 
         }
+    } else {
+            read_header(client_sock,header_buffer);
+			char * tttt = strstr(header_buffer,"migumusic");
+			if(tttt)
+			{
+				is_http_tunnel = 1;
+			}
+            else 
+			{
+				LOG("IP:%s. Header did not contain 'migumusic' and will not forward any data!\n", sip);
+				return;
+			}
     }
 
     if ((remote_sock = create_connection()) < 0) {
