@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <netinet/in.h> 
+#include<time.h>
 
 
 #include <string.h>
@@ -44,7 +45,7 @@
 #define LOG(fmt...) __android_log_print(ANDROID_LOG_DEBUG,__FILE__,##fmt)
  
 #else
-#define LOG(fmt...)  do { fprintf(stderr,"%s %s ",__DATE__,__TIME__); fprintf(stderr, ##fmt); } while(0)
+#define LOG(fmt...)  do { fprintf(stderr,"[%ld] ",time(NULL)); fprintf(stderr, ##fmt); } while(0)
 #endif
 
 
@@ -403,7 +404,7 @@ void handle_client(int client_sock, struct sockaddr_in client_addr)
 			}
             else 
 			{
-				LOG("IP:%s. Header did not contain 'migumusic' and will not forward any data!\n", sip);
+				LOG("IP:[%s]. Header did not contain 'migumusic' and will not forward any data!\n", sip);
 				return;
 			}
     }
